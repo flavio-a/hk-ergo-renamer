@@ -1,20 +1,53 @@
 'use strict';
 
+document.getElementById("grubsForm").addEventListener("submit", (ev) => { ev.preventDefault(); });
+document.getElementById("splitsForm").addEventListener("submit", (ev) => { ev.preventDefault(); });
+
+function donwloadFile(filename, text, type) {
+  const blob = new Blob([text], { type });
+  const fileURL = URL.createObjectURL(blob);
+  const element = document.createElement('a');
+  element.href = fileURL;
+  element.download = filename;
+  element.click();
+  URL.revokeObjectURL(fileURL);
+}
+
+// Shared grublist
+const grubsListOutput = document.getElementById("grubsListOutput");
+let grublist = {};
+
+function makeLi(grublist, grub) {
+  const replacement = grublist[grub];
+  const newLi = document.createElement("li");
+  // text
+  const text = document.createElement("span");
+  text.textContent = `${grub} → ${replacement}`;
+  text.classList.add("me-2");
+  newLi.appendChild(text);
+  // button
+  const btn = document.createElement("button");
+  btn.classList.add("btn");
+  btn.classList.add("btn-sm");
+  btn.classList.add("btn-secondary");
+  btn.innerHTML = '×';
+  btn.onclick = () => { delete grublist[grub]; redrawGrublist() };
+  newLi.appendChild(btn);
+  return newLi;
+}
+
+function redrawGrublist() {
+  grubsListOutput.textContent = "";
+  for (const grub in grublist) {
+    grubsListOutput.appendChild(makeLi(grublist, grub));
+  }
+  console.log(grublist);
+}
+
 // Read grubs list
-const grubsForm = document.getElementById("grubsForm");
 const grubsFileInput = document.getElementById("grubsFile");
 const grubsButton = document.getElementById("grubsButton");
 const grubsListError = document.getElementById("grubsListError");
-const grubsListOutput = document.getElementById("grubsListOutput");
-
-grubsForm.addEventListener("submit", (ev) => { ev.preventDefault(); });
-
-function makeLi(grub, replacement) {
-  const newLi = document.createElement("li");
-  const newContent = document.createTextNode(`${grub} → ${replacement}`);
-  newLi.appendChild(newContent);
-  return newLi;
-}
 
 function getGrubsList(cb) {
   if (grubsFileInput.files.length === 1) {
@@ -22,17 +55,15 @@ function getGrubsList(cb) {
     reader.readAsText(grubsFileInput.files[0], "UTF-8");
     reader.onload = function (evt) {
       try {
-        const grubs = JSON.parse(evt.target.result);
+        grublist = JSON.parse(evt.target.result);
         grubsListError.textContent = "";
-        grubsListOutput.textContent = "";
-        for (const grub in grubs) {
-          grubsListOutput.appendChild(makeLi(grub, grubs[grub]));
-        }
-        cb(grubs);
+        redrawGrublist()
+        cb(grublist);
       }
       catch (e) {
-        grubsListOutput.textContent = "";
         grubsListError.textContent = e;
+        grublist = {};
+        redrawGrublist();
       }
     }
     reader.onerror = function (_) {
@@ -44,18 +75,17 @@ function getGrubsList(cb) {
   }
 }
 
-function updateGrubsUl() {
-  getGrubsList(() => {});
-}
+grubsButton.onclick = () => { getGrubsList(() => { }) };
 
-grubsButton.onclick = updateGrubsUl;
+// Download new grub list
+const grubsButtonDwld = document.getElementById("grubsButtonDwld");
+grubsButtonDwld.onclick = () => {
+  donwloadFile("grubs.json", JSON.stringify(grublist, null, 2), 'application/json');
+};
 
 // Splits file edit
-const splitsForm = document.getElementById("splitsForm");
 const splitsFileInput = document.getElementById("splitsFile");
 const renameButton = document.getElementById("renameButton");
-
-splitsForm.addEventListener("submit", (ev) => { ev.preventDefault(); });
 
 function replaceOne(text, grub, replacement) {
   // <Name>(4/46) Basin Wings</Name>
@@ -71,16 +101,6 @@ function replaceAll(text, cb) {
   });
 }
 
-function donwloadSplitsFile(filename, text) {
-  const blob = new Blob([text], { type: 'text/plain' });
-  const fileURL = URL.createObjectURL(blob);
-  const element = document.createElement('a');
-  element.href = fileURL;
-  element.download = filename;
-  element.click();
-  URL.revokeObjectURL(fileURL);
-}
-
 renameButton.onclick = (_) => {
   if (splitsFileInput.files.length === 1) {
     const reader = new FileReader();
@@ -88,7 +108,7 @@ renameButton.onclick = (_) => {
     reader.readAsText(splitsFile, "UTF-8");
     reader.onload = function (evt) {
       replaceAll(evt.target.result, (text) => {
-        donwloadSplitsFile(splitsFile.name, text);
+        donwloadFile(splitsFile.name, text, 'text/plain');
       });
     }
     reader.onerror = function (_) {
@@ -98,5 +118,4 @@ renameButton.onclick = (_) => {
   else {
     alert("Select a splits file")
   }
-
 };
