@@ -12,7 +12,8 @@
 <body>
   <div class="container py-4 px-3 mx-auto">
     <h1 class="text-center mb-5">HK livesplit files grub renamer</h1>
-    <p class="mt-3">Get splits at <a href="https://www.smallhomothetyorganization.org/grubby/randomgruborder">Small Homothety Organization</a>.</p>
+    <p class="mt-3">Get splits at <a href="https://www.smallhomothetyorganization.org/grubby/randomgruborder">Small
+        Homothety Organization</a>.</p>
     <div class="row row-cols-2">
       <div class="col">
         <!-- Split files -->
@@ -34,17 +35,33 @@
             <input class="form-control" accept="application/json" type="file" id="grubsFile">
           </div>
           <button class="btn btn-primary" id="grubsButton">Load from file</button>
-          <button class="btn btn-primary" id="grubsButtonDwld">Download new file</button>
         </form>
         <div id="grubsListError" class="text-danger mt-3"></div>
         <ul class="mt-3" id="grubsListOutput"></ul>
-        <!-- TODO add editable list -->
+        <form id="addGrubForm" class="mt-3">
+          <p>Add a grub rename:</p>
+          <div class="mb-3 row row-cols-3">
+            <div class="col">
+              <select class="form-select" id="grubSelect" aria-label="Grub selector">
+                <option selected>Select grub</option>
+              </select>
+              <!-- <span>&rarr;</span> -->
+            </div>
+            <div class="col">
+              <input type="text" class="form-control" id="grubRenameText" placeholder="Rename to">
+            </div>
+            <div class="col">
+              <button class="btn btn-primary" id="addGrubRenameButton">Add rename</button>
+            </div>
+          </div>
+        </form>
+        <button class="btn btn-primary" id="grubsButtonDwld">Download new file</button>
       </div>
     </div>
     <footer class="mb-3">
       <div class="container">
         <a href="https://github.com/flavio-a/hk-ergo-renamer/blob/main/credits.md" class="me-2">Credits</a>
-        <span class="text-muted">Version 1.1.0</span>
+        <span class="text-muted">Version 1.1.1</span>
       </div>
     </footer>
   </div>

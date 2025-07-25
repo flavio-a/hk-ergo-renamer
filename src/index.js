@@ -2,6 +2,7 @@
 
 document.getElementById("grubsForm").addEventListener("submit", (ev) => { ev.preventDefault(); });
 document.getElementById("splitsForm").addEventListener("submit", (ev) => { ev.preventDefault(); });
+document.getElementById("addGrubForm").addEventListener("submit", (ev) => { ev.preventDefault(); });
 
 function donwloadFile(filename, text, type) {
   const blob = new Blob([text], { type });
@@ -12,6 +13,72 @@ function donwloadFile(filename, text, type) {
   element.click();
   URL.revokeObjectURL(fileURL);
 }
+
+// Grubs select list
+const allGrubs = [
+  "Hive Internal",
+  "Crystal Peaks Spikes",
+  "Crossroads Wall",
+  "Fungal Spore Shroom",
+  "Queen's Gardens Upper",
+  "Queen's Gardens Below Stag",
+  "Fungal Bouncy",
+  "Greenpath Vessel Fragment",
+  "Crystal Peaks Crown",
+  "Sanctum Fake Dive",
+  "Crystal Peaks Crushers",
+  "City Guard House",
+  "City Spire",
+  "Ismas",
+  "Crossroads Acid",
+  "Crossroads Guarded",
+  "Crystalized Mound",
+  "Baldur Shell",
+  "Crystal Peaks Crystal Heart",
+  "Crystal Peaks Bottom Lever",
+  "Kingdom's Edge Center",
+  "Hwurmps",
+  "White Lady",
+  "Resting Grounds Crypts",
+  "Waterways Center",
+  "Greenpath Hunter",
+  "Deepnest Dark",
+  "Deepnest Nosk",
+  "Deepnest Beasts Den",
+  "Kingdom's Edge Oro",
+  "Deepnest Mimics",
+  "Collector Grubs",
+  "City Below Sanctum",
+  "Greenpath Cornifer",
+  "Deepnest Spikes",
+  "Crossroads Vengefly",
+  "Fog Canyon Archives",
+  "Hive External",
+  "City Below Love Tower",
+  "Basin Wings",
+  "Basin Dive",
+  "Greenpath Moss Knight",
+  "Crystal Peaks Mimic",
+  "Crossroads Spikes",
+];
+const grubSelect = document.getElementById("grubSelect");
+
+function makeOptions() {
+  grubSelect.textContent = "";
+  // Default option
+  const defaultOption = document.createElement("option");
+  defaultOption.textContent = "Select grub";
+  grubSelect.appendChild(defaultOption);
+
+  for (const grub of allGrubs) {
+    // <option value="1">One</option>
+    const newOption = document.createElement("option");
+    newOption.textContent = grub;
+    newOption.value = grub;
+    grubSelect.appendChild(newOption);
+  }
+}
+makeOptions();
 
 // Shared grublist
 const grubsListOutput = document.getElementById("grubsListOutput");
@@ -83,6 +150,19 @@ grubsButtonDwld.onclick = () => {
   donwloadFile("grubs.json", JSON.stringify(grublist, null, 2), 'application/json');
 };
 
+// Add new grub rename
+const grubRenameText = document.getElementById("grubRenameText");
+const addGrubRenameButton = document.getElementById("addGrubRenameButton");
+addGrubRenameButton.onclick = () => {
+  // Reselect none
+  // grubSelect
+  console.log(grubSelect.value, grubRenameText.value);
+  grublist[grubSelect.value] = grubRenameText.value;
+  redrawGrublist();
+  grubRenameText.value = "";
+};
+
+
 // Splits file edit
 const splitsFileInput = document.getElementById("splitsFile");
 const renameButton = document.getElementById("renameButton");
@@ -92,24 +172,17 @@ function replaceOne(text, grub, replacement) {
   return text.replace(new RegExp(`\\<Name\\>(\\(\\d{1,2}\\/46\\) )?${grub}\\<\\/Name\\>`), `<Name>$1${replacement}</Name>`);
 }
 
-function replaceAll(text, cb) {
-  getGrubsList((grubsList) => {
-    for (const grub in grubsList) {
-      text = replaceOne(text, grub, grubsList[grub]);
-    }
-    cb(text);
-  });
-}
-
 renameButton.onclick = (_) => {
   if (splitsFileInput.files.length === 1) {
     const reader = new FileReader();
     const splitsFile = splitsFileInput.files[0];
     reader.readAsText(splitsFile, "UTF-8");
     reader.onload = function (evt) {
-      replaceAll(evt.target.result, (text) => {
-        donwloadFile(splitsFile.name, text, 'text/plain');
-      });
+      let text = evt.target.result;
+      for (const grub in grublist) {
+        text = replaceOne(text, grub, grublist[grub]);
+      };
+      donwloadFile(splitsFile.name, text, 'text/plain');
     }
     reader.onerror = function (_) {
       alert("Error reading splits file");
