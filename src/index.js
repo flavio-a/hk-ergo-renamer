@@ -4,6 +4,7 @@
 const grubsForm = document.getElementById("grubsForm");
 const grubsFileInput = document.getElementById("grubsFile");
 const grubsButton = document.getElementById("grubsButton");
+const grubsListError = document.getElementById("grubsListError");
 const grubsListOutput = document.getElementById("grubsListOutput");
 
 grubsForm.addEventListener("submit", (ev) => { ev.preventDefault(); });
@@ -18,12 +19,21 @@ function makeLi(grub, replacement) {
 function getGrubsList(cb) {
   if (grubsFileInput.files.length === 1) {
     const reader = new FileReader();
-    // console.log(grubsFileInput.files[0]);
     reader.readAsText(grubsFileInput.files[0], "UTF-8");
     reader.onload = function (evt) {
-      const grubs = JSON.parse(evt.target.result);
-      // console.log(grubs);
-      cb(grubs);
+      try {
+        const grubs = JSON.parse(evt.target.result);
+        grubsListError.textContent = "";
+        grubsListOutput.textContent = "";
+        for (const grub in grubs) {
+          grubsListOutput.appendChild(makeLi(grub, grubs[grub]));
+        }
+        cb(grubs);
+      }
+      catch (e) {
+        grubsListOutput.textContent = "";
+        grubsListError.textContent = e;
+      }
     }
     reader.onerror = function (_) {
       alert("Error reading grubs file");
@@ -35,12 +45,7 @@ function getGrubsList(cb) {
 }
 
 function updateGrubsUl() {
-  const grubsList = getGrubsList((grubsList) => {
-    grubsListOutput.textContent = "";
-    for (const grub in grubsList) {
-      grubsListOutput.appendChild(makeLi(grub, grubsList[grub]));
-    }
-  });
+  getGrubsList(() => {});
 }
 
 grubsButton.onclick = updateGrubsUl;
@@ -67,7 +72,6 @@ function replaceAll(text, cb) {
 }
 
 function donwloadSplitsFile(filename, text) {
-  console.log(filename);
   const blob = new Blob([text], { type: 'text/plain' });
   const fileURL = URL.createObjectURL(blob);
   const element = document.createElement('a');
@@ -81,7 +85,6 @@ renameButton.onclick = (_) => {
   if (splitsFileInput.files.length === 1) {
     const reader = new FileReader();
     const splitsFile = splitsFileInput.files[0];
-    console.log(splitsFile);
     reader.readAsText(splitsFile, "UTF-8");
     reader.onload = function (evt) {
       replaceAll(evt.target.result, (text) => {

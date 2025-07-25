@@ -1,6 +1,6 @@
 {
   "name": "hk-ergo-renamer",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "A simple webpage to rename grubs in livesplit files",
   "main": "index.js",
   "scripts": {
