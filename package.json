@@ -1,0 +1,24 @@
+{
+  "name": "hk-ergo-renamer",
+  "version": "1.0.0",
+  "description": "A simple webpage to rename grubs in livesplit files",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "deploy": "gh-pages -d src",
+    "help": "gh-pages --help"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/flavio-a/hk-ergo-renamer.git"
+  },
+  "author": "flavio-a",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/flavio-a/hk-ergo-renamer/issues"
+  },
+  "homepage": "http://flavio-a.github.io/HollowKnight-krlo-generator",
+  "devDependencies": {
+    "gh-pages": "^6.3.0"
+  }
+}

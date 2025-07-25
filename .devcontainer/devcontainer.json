@@ -1,0 +1,9 @@
+{
+    "image": "mcr.microsoft.com/devcontainers/typescript-node:1-22-bookworm",
+    "forwardPorts": [
+        8080
+    ],
+    "mounts": [
+        "source=/home/flavio/Git/hk-ergo-renamer,target=/home/node/hk-ergo-renamer,type=bind,consistency=cached"
+    ]
+}
